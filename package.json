@@ -1,0 +1,18 @@
+{
+  "name": "cognito-user-pool",
+  "version": "1.0.0",
+  "description": "This service is in charge of managing user authentication and authorization in the MRV Platform. It consists of the following resources:",
+  "main": "handler.js",
+  "dependencies": {
+    "http-server": "^0.11.1"
+  },
+  "devDependencies": {
+    "serverless-offline": "^4.4.0"
+  },
+  "scripts": {
+    "start": "http-server -p 3000 ./frontend",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

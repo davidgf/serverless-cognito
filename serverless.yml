@@ -1,0 +1,77 @@
+service: cognito-user-pool
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  region: eu-west-2
+  stage: ${self:custom.currentStage}
+  logRetentionInDays: 30
+  timeout: 30
+
+custom:
+  defaultStage: dev
+  currentStage: ${opt:stage, self:custom.defaultStage}
+  userPoolName: test-user-pool-${self:custom.currentStage}
+  userPoolClientName: test-user-pool-client-${self:custom.currentStage}
+
+functions:
+  registeredOnly:
+    handler: handler.hiUsers
+    events:
+      - http:
+          path: /hiUsers
+          method: get
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+  guests:
+    handler: handler.hiGuests
+    events:
+      - http:
+          path: /hiAll
+          method: get
+
+resources:
+  Resources:
+    CognitoUserPool:
+      Type: "AWS::Cognito::UserPool"
+      Properties:
+        MfaConfiguration: OFF
+        UserPoolName: ${self:custom.userPoolName}
+        UsernameAttributes:
+          - email
+        Policies:
+          PasswordPolicy:
+            MinimumLength: 6
+            RequireLowercase: False
+            RequireNumbers: True
+            RequireSymbols: False
+            RequireUppercase: True
+    CognitoUserPoolClient:
+      Type: "AWS::Cognito::UserPoolClient"
+      Properties:
+        ClientName: ${self:custom.userPoolClientName}
+        GenerateSecret: False
+        UserPoolId:
+          Ref: CognitoUserPool
+    ApiGatewayAuthorizer:
+      DependsOn:
+        - ApiGatewayRestApi
+      Type: AWS::ApiGateway::Authorizer
+      Properties:
+        Name: cognito-authorizer
+        IdentitySource: method.request.header.Authorization
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        Type: COGNITO_USER_POOLS
+        ProviderARNs:
+          - Fn::GetAtt: [CognitoUserPool, Arn]
+  Outputs:
+    CognitoUserPoolArn:
+      Value:
+        Fn::GetAtt:
+          - CognitoUserPool
+          - Arn
+      Export:
+        Name: CognitoUserPoolArn-${self:custom.currentStage}

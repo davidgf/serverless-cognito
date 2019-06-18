@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cognito Authentication for Serverless example</title>
+
+<script>
+
+    let config = undefined
+    let id_token = undefined
+
+    function preparePage(){
+
+      id_token = getIDToken()
+
+      // TODO: simplification: if id_token undefined, redirect to authentication
+
+      if (id_token !== undefined){
+        document.getElementById('authentication-display').innerText = "Authenticated"
+      }
+
+      // load config.json and call stuff that depends on it
+      fetch('./config.json').then(res => res.json())
+      .then((configJson) => {
+        config = configJson
+        prepareAuthenticationLink(config['authenticationURL'])
+
+        if(id_token !== undefined) {
+          showServiceCallButton()
+          setCurlCommand()
+        }
+
+      }).catch(err => console.error(err))
+    }
+
+    function prepareAuthenticationLink(authenticationURL) {
+      let authLink = document.getElementById('authentication-link')
+      authLink.href = config['authenticationURL']
+    }
+
+    function showServiceCallButton(){
+      document.getElementById('call-service-button').hidden=false
+    }
+
+    function getIDToken(){
+      let url = new URL(location.href)
+      let this_id_token = undefined
+
+      url.hash.substr(1).split('&').some(
+        function(keyValueString){
+          let keyValueArray = keyValueString.split('=')
+          console.log(keyValueArray)
+          if(keyValueArray[0]==="id_token"){
+            this_id_token = keyValueArray[1]
+            return true
+          }
+        }
+      )
+
+      return this_id_token
+    }
+
+    function getURLHashAsObject (){
+      let url = new URL(location.href)
+      let hash = url.hash
+      let parameters = {}
+
+      hash.substr(1).split('&').forEach(
+        function(keyValueString){
+          let keyValueArray = keyValueString.split('#')
+          parameters[keyValueArray[0]] = keyValueArray[1]
+        }
+      )
+
+      return parameters
+    }
+
+    function callService(){
+      let serviceURL = config['serviceURL']
+
+      fetch(serviceURL,
+        { headers: {
+          'Authorization': id_token,
+        }})
+        .then((result) => {
+          console.log(result)
+          document.getElementById('call-result').innerText = result
+        }).catch(err => {
+          console.error(err)
+          document.getElementById('call-result').innerText = err
+      })
+    }
+
+    function setCurlCommand(){
+      let curlCommand= "curl"
+      curlCommand += " -H \"Authorization:" + " " + id_token + "\" "
+      curlCommand +=  config['serviceURL']
+      document.getElementById('curl-command').innerText = curlCommand
+    }
+
+
+</script>
+
+</head>
+<body onload="preparePage()">
+
+
+<div id="authentication">
+    <div id="authentication-display">Not authenticated</div>
+    <a href="" id="authentication-link">Authenticate</a>
+</div>
+
+<div id="curl-command"></div>
+
+<button id="call-service-button" hidden="true" onclick="callService()">
+Call Service
+</button>
+
+<div id="call-result"></div>
+
+
+</body>
+</html>

@@ -49,7 +49,6 @@
       url.hash.substr(1).split('&').some(
         function(keyValueString){
           let keyValueArray = keyValueString.split('=')
-          console.log(keyValueArray)
           if(keyValueArray[0]==="id_token"){
             this_id_token = keyValueArray[1]
             return true
@@ -60,34 +59,25 @@
       return this_id_token
     }
 
-    function getURLHashAsObject (){
-      let url = new URL(location.href)
-      let hash = url.hash
-      let parameters = {}
-
-      hash.substr(1).split('&').forEach(
-        function(keyValueString){
-          let keyValueArray = keyValueString.split('#')
-          parameters[keyValueArray[0]] = keyValueArray[1]
-        }
-      )
-
-      return parameters
-    }
-
     function callService(){
       let serviceURL = config['serviceURL']
 
+      //console.log('calling service witj id token: ' + id_token)
+
       fetch(serviceURL,
-        { headers: {
-          'Authorization': id_token,
-        }})
-        .then((result) => {
-          console.log(result)
-          document.getElementById('call-result').innerText = result
+        {
+          credentials: 'include',
+          headers: {
+            'Authorization': id_token
+          }
+        }).then(res => res.json())
+        .then((resultJson) => {
+          console.log(resultJson)
+          document.getElementById('call-result').innerText = 'Result: ' + resultJson.message
         }).catch(err => {
+          console.assert('Error Calling Service:')
           console.error(err)
-          document.getElementById('call-result').innerText = err
+          document.getElementById('call-result').innerText = 'ERROR: ' + err
       })
     }
 
@@ -110,6 +100,7 @@
     <a href="" id="authentication-link">Authenticate</a>
 </div>
 
+<!-- TODO: convenicence: have a button to copy command to clipboard -->
 <div id="curl-command"></div>
 
 <button id="call-service-button" hidden="true" onclick="callService()">

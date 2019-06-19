@@ -20,7 +20,6 @@ Example frontend code to use cognito auth to call a serverless service
 
 ## TODO
 
-* to get the call working from localhost in development, must set cors headers!
 * Simplify code and usage: if no id_token is in url, immediately redirect to
   the authentication page! Manual authentication is not necessary. 
 * Add a variant: use the cognito authentication endpoint instead of Cognito 

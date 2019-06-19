@@ -10,7 +10,7 @@
     "serverless-offline": "^4.4.0"
   },
   "scripts": {
-    "start": "http-server -p 3000 ./frontend",
+    "start": "http-server -o -p 3000 ./frontend",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

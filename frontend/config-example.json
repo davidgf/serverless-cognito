@@ -1,0 +1,4 @@
+{
+  "serviceURL":"https://<SERVICEHOSTNAME>>.execute-api.eu-central-1.amazonaws.com/dev/hiUsers",
+  "authenticationURL": "https://<DOMAIN>/login?response_type=token&client_id=<APP_CLIENT_ID>&redirect_uri=http://localhost:3000"
+}

@@ -47,7 +47,7 @@ resources:
     CognitoUserPool:
       Type: "AWS::Cognito::UserPool"
       Properties:
-        MfaConfiguration: OFF
+        MfaConfiguration: "OFF"
         UserPoolName: ${self:custom.userPoolName}
         UsernameAttributes:
           - email

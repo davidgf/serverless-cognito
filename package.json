@@ -4,7 +4,7 @@
   "description": "This service is in charge of managing user authentication and authorization in the MRV Platform. It consists of the following resources:",
   "main": "handler.js",
   "dependencies": {
-    "http-server": "^0.11.1"
+    "http-server": "^0.11.2"
   },
   "devDependencies": {
     "serverless-offline": "^4.4.0"
